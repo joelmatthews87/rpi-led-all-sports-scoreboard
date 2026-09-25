@@ -14,6 +14,9 @@ from scenes.game_scenes.games_scene_mlb import MLBGamesScene
 from scenes.fav_team_next_game_scenes.fav_team_next_game_scene_mlb import MLBFavTeamNextGameScene
 from scenes.standings_scenes.standings_scene_mlb import MLBStandingsScene
 
+from scenes.game_scenes.games_scene_nfl import NFLGamesScene
+from scenes.fav_team_next_game_scenes.fav_team_next_game_scene_nfl import NFLFavTeamNextGameScene
+
 from setup.matrix_setup import matrix, determine_matrix_brightness
 from utils import data_utils
 
@@ -39,7 +42,10 @@ def run_scoreboard():
 
         'mlb_games':                MLBGamesScene(),
         'mlb_fav_team_next_game':   MLBFavTeamNextGameScene(),
-        'mlb_standings':            MLBStandingsScene()
+        'mlb_standings':            MLBStandingsScene(),
+
+        'nfl_games':                NFLGamesScene(),
+        'nfl_fav_team_next_game':   NFLFavTeamNextGameScene()
     }
 
     # Infinite loop.

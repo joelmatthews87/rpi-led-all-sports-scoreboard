@@ -1,10 +1,19 @@
-# Raspberry Pi LED Matrix Sports Scoreboard
+# Raspberry Pi LED Matrix All Sports Scoreboard
 
-Display live hockey, basketball, and baseball game scores, future start times, standings, etc. on an LED matrix driven by a Raspberry Pi.
+Display live football, hockey, basketball, and baseball game scores, future start times, standings, etc. on an LED matrix driven by a Raspberry Pi.
 
 Hardware requirements, installation instructions (with and without Docker), and configuration breakdown are below.
 
+> ### Credit & Attribution
+>
+> This project is a fork of **[gidger/rpi-led-sports-scoreboard](https://github.com/gidger/rpi-led-sports-scoreboard)**. All of the scoreboard's architecture, rendering engine, scene system, and NHL/PWHL/NBA/WNBA/MLB support are gidger's work, and the full upstream commit history is preserved here.
+>
+> This fork adds NFL support, built to match the existing architecture. The NFL implementation takes its data-source approach (ESPN) and logo-sourcing idea from **[ChuckBuilds/LEDMatrix](https://github.com/ChuckBuilds/LEDMatrix)**, though none of that project's rendering code is used here.
+>
+> Licensed under GPLv3, the same as upstream. See [LICENSE](LICENSE).
+
 **Leagues Implemented:**
+- 🏈 NFL
 - 🏒 NHL
 - 🏒 PWHL
 - 🏀 NBA
@@ -41,7 +50,7 @@ Hardware requirements, installation instructions (with and without Docker), and 
 <a name="install"/>
 
 ## Installation Instructions
-These instructions assume some very basic knowledge of electronics and Linux command line navigation. For additional details on driving an RGB matrix with a Raspberry Pi, check out [my fork of hzeller's rpi-rgb-led-matrix repo](https://github.com/gidger/rpi-rgb-led-matrix-python3.12-fix/) (it's the submodule used in this project).
+These instructions assume some very basic knowledge of electronics and Linux command line navigation. For additional details on driving an RGB matrix with a Raspberry Pi, check out [gidger's fork of hzeller's rpi-rgb-led-matrix repo](https://github.com/gidger/rpi-rgb-led-matrix-python3.12-fix/) (it's the submodule used in this project).
 
 As of release v3.0.0, the recommended installation method for this project leverages Docker. Instructions are provided for installation with or without Docker.
 
@@ -101,12 +110,12 @@ Any installation will need to start with these steps:
 
 1. Clone this repository, including submodules.
     ```bash
-    git clone --recursive https://github.com/gidger/rpi-led-sports-scoreboard.git
+    git clone --recursive https://github.com/joelmatthews87/rpi-led-all-sports-scoreboard.git
     ```
 
 1. Navigate to the repository we just cloned.
     ```bash
-    cd rpi-led-sports-scoreboard
+    cd rpi-led-all-sports-scoreboard
     ```
 
 1. **If you're using a Raspberry Pi 4, skip this step.** If you're using a Raspberry Pi Zero 2W, 3B, or older, you'll need to update hardware_config.gpio_slowdown in config.yaml to prevent flickering. It's recommended that you reduce the value by 1 each test and try every option to see what looks best for your hardware.
@@ -134,12 +143,12 @@ Any installation will need to start with these steps:
 
 1. Clone this repository, including submodules.
     ```bash
-    git clone --recursive https://github.com/gidger/rpi-led-sports-scoreboard.git
+    git clone --recursive https://github.com/joelmatthews87/rpi-led-all-sports-scoreboard.git
     ```
 
 1. Navigate to the repository we just cloned.
     ```bash
-    cd rpi-led-sports-scoreboard
+    cd rpi-led-all-sports-scoreboard
     ```
 
 1. Create a Python virtual environment with the name "venv". Then activate.
@@ -165,7 +174,7 @@ Any installation will need to start with these steps:
 
 1. Return to the root of your clone of this repository.
     ```bash
-    cd /home/pi/rpi-led-sports-scoreboard/ 
+    cd /home/pi/rpi-led-all-sports-scoreboard/ 
     ```
 
 1. **If you're using a Raspberry Pi 4, skip this step.** If you're using a Raspberry Pi Zero 2W, 3B, or older, you'll need to update hardware_config.gpio_slowdown in config.yaml to prevent flickering. It's recommended that you reduce the value by 1 each test and try every option to see what looks best for your hardware.
@@ -184,13 +193,13 @@ Any installation will need to start with these steps:
     Paste the following:
     ```
     #!/bin/bash
-    cd /home/pi/rpi-led-sports-scoreboard
+    cd /home/pi/rpi-led-all-sports-scoreboard
     source venv/bin/activate
 
     n=0
     until [ $n -ge 10 ]
     do
-       sudo /home/pi/rpi-led-sports-scoreboard/venv/bin/python main.py  && break
+       sudo /home/pi/rpi-led-all-sports-scoreboard/venv/bin/python main.py  && break
        n=$[$n+1]
        sleep 10
     done
@@ -244,6 +253,10 @@ Functionality is divided into different "scenes" that each display information o
 | ⚾️ MLB Games                    | mlb_games                           | Displays live MLB game scores, current inning, outs, runners on base, etc. If the game hasn't started, start time is displayed. Can optionally display games for previous day as well.                           |
 | ⚾️ MLB Favourite Team Next Game | mlb_fav_team_next_game              | Displays next game details for all specified favourite teams. If game is today, displays start time. Can optionally be suppressed if game is in progress. Will not display anything if no favourite team is set. |
 | ⚾️ MLB Standings                | mlb_standings                       | Displays standings for wild card, division, and/or league, as configured by the user. Can optionally highlight favourite team.                                                                                   |
+| 🏈 NFL Games                     | nfl_games                           | Displays live NFL game scores, quarter, time remaining, etc. If the game hasn't started, start time is displayed alongside the weekday. By default shows the whole current week's slate rather than a single day. |
+| 🏈 NFL Favourite Team Next Game  | nfl_fav_team_next_game              | Displays next game details for all specified favourite teams. If game is today, displays start time. Can optionally be suppressed if game is in progress. Will not display anything if no favourite team is set. |
+
+NFL standings are not currently implemented.
 
 <a name="config"/>
 
@@ -289,6 +302,8 @@ These setting impact individual scenes only and are (generally) unique to that s
 | Games                    | ...games.rollover.show_completed_games_until_rollover_end_time | If games for both yesterday and today should be displayed when time is between rollover_start_time_local and rollover_end_time_local. | <ul><li>True (Default)</li><li>False</li>                      |                                                                                       |
 | Games                    | ...games.rollover.rollover_end_time_local                      | Time of day to stop reporting on yesterdays games.                                                                                    | Any time in 'HH:MM' format<br>Default 12:00                    | If  show_completed_games_until_rollover_end_time = False, this setting is irrelevant. |
 | Games                    | mlb.games.display_outs_and_bases                               | If outs and runners on base should be displayed for live games.                                                                       | <ul><li>True (Default)</li><li>False</li></ul>                 | Only applicable for the MLB games scene.                                              |
+| Games                    | nfl.games.show_full_week                                       | If the whole current week's slate should be shown rather than only the current day's games.                                           | <ul><li>True (Default)</li><li>False</li></ul>                 | Only applicable for the NFL games scene. NFL plays Thu–Mon, so a single-day view is empty most weekdays. Games on another day show that weekday (e.g. 'Sun') instead of 'Today'. When True, the rollover settings are not used. |
+| Games                    | nfl.games.max_logo_width                                       | Maximum width in pixels a team logo may be scaled to before it's placed on the matrix.                                                | Any integer 1 ≤ x ≤ 40<br>Default 30                           | Only 21 columns of a logo are visible; anything wider bleeds off the outer edge by design. NFL defaults to 30 because several NFL logos are wide wordmarks that lose too much at the full 40. Omit the setting to get the standard behaviour used by the other leagues. |
 | Favourite Team Next Game | ...fav_team_next_games.display_duration                        | How many seconds to display the next game info for each favourite team.                                                               | Any number > 0<br> Default 3.5                                 |                                                                                       |
 | Favourite Team Next Game | ...fav_team_next_games.display_if_in_progress                  | If the next game should be displayed when the favourite team is currently playing.                                                    | <ul><li>False (Default)</li><li>True</li>                      | If True, the next game will be displayed with 'Ipr' in place of a date or time.       |
 | Standings                | ...standings.scroll.scroll_pause_duration                      | How many seconds to pause once a team has been fully scrolled on/off the matrix.                                                      | Any number > 0<br> Default 1                                   |                                                                                       |

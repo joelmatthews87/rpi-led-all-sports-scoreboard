@@ -1,8 +1,13 @@
 ---
 services:
   scoreboard:
-    image: ghcr.io/gidger/rpi-led-sports-scoreboard:latest
-    container_name: rpi-led-sports-scoreboard
+    # Build from this repo rather than pulling a prebuilt image, so local changes
+    # (e.g. the NFL scenes) actually end up in the running container.
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: rpi-led-all-sports-scoreboard:local
+    container_name: rpi-led-all-sports-scoreboard
     privileged: true
     restart: unless-stopped
     volumes:

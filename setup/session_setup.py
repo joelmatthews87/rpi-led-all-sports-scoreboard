@@ -10,3 +10,4 @@ retry_strategy = Retry(
     status_forcelist=[429, 500, 502, 503, 504] # HTTP status codes to retry on.
 )
 session.mount('http://', HTTPAdapter(max_retries=retry_strategy))
+session.mount('https://', HTTPAdapter(max_retries=retry_strategy))

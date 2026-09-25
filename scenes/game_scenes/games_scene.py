@@ -258,13 +258,18 @@ class GamesScene(Scene):
             game (dict): Dictionary with all details of a specific game.
         """
         
+        # Only 21 of the 40 helper image columns are visible, so wider logos bleed off the outer
+        # edge of the matrix. That's intended, but wordmark style logos can lose too much of
+        # themselves. max_logo_width in config.yaml lets a league pull that zoom back.
+        max_logo_width = self.settings.get('max_logo_width') or self.images['left'].width
+
         # Determine the path of the image to load. Standard path or alt logo.
         away_logo_path = f'assets/images/{self.LEAGUE}/teams/{game['away_abrv']}.png' if game['away_abrv'] not in self.alt_logos else f'assets/images/{self.LEAGUE}/teams_alt/{game['away_abrv']}_{self.alt_logos[game['away_abrv']]}.png'
         
         # Load, crop, and resize the away team logo.
         away_logo = Image.open(away_logo_path)
         away_logo = image_utils.crop_image(away_logo)
-        away_logo.thumbnail(self.images['left'].size)
+        away_logo.thumbnail((max_logo_width, self.images['left'].height))
 
         # Determine placement and add logo to the left image.
         away_placement_in_image = (
@@ -279,7 +284,7 @@ class GamesScene(Scene):
         # Load, crop, and resize the home team logo.
         home_logo = Image.open(home_logo_path)
         home_logo = image_utils.crop_image(home_logo)
-        home_logo.thumbnail(self.images['right'].size)
+        home_logo.thumbnail((max_logo_width, self.images['right'].height))
 
         # Determine placement and add logo to the right image.
         home_placement_in_image = (
