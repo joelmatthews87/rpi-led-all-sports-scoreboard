@@ -1,6 +1,9 @@
 ---
 services:
   scoreboard:
+    # Build from this repo rather than pulling a prebuilt image. Upstream pulls
+    # ghcr.io/gidger/rpi-led-sports-scoreboard, which would silently run without
+    # the NFL scenes added in this fork.
     build: .
     image: rpi-led-all-sports-scoreboard:local
     container_name: rpi-led-all-sports-scoreboard
