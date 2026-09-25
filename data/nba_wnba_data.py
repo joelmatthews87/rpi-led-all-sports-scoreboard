@@ -34,12 +34,13 @@ cdn_headers = {
 }
 
 
-def get_games(date, league_abrv):
+def get_games(date, league_abrv, include_preseason=False):
     """ Loads NBA/WNBA game data for the provided date.
 
     Args:
         date (date): Date that game data should be pulled for.
         league_abrv (str): Abbreviation of the league for which to fetch game data (e.g., 'NBA', 'WNBA').
+        include_preseason (bool, optional): Include preseason games. Defaults to False.
 
     Returns:
         list: List of dicts of game data.
@@ -67,10 +68,15 @@ def get_games(date, league_abrv):
         games_response = session.get(url=f"{url}&GameDate={date.strftime(format='%Y-%m-%d')}", headers=stats_headers)
         games_json = games_response.json()['scoreboard']['games']
 
+    # Labels to skip. Exhibition games are always dropped, preseason only when it isn't wanted.
+    excluded_labels = ['All-Star', 'Rising Stars']
+    if not include_preseason:
+        excluded_labels.append('Preseason')
+
     # For each game, build a dict recording current game details.
     if games_json: # If games today.
         for game in games_json:
-            if 'All-Star' not in game['gameLabel'] and 'Preseason' not in game['gameLabel'] and 'Rising Stars' not in game['gameLabel']: # This should leave regular season and playoff games.
+            if not any(label in game['gameLabel'] for label in excluded_labels): # This should leave regular season and playoff games.
                 games.append({
                     'game_id': game['gameId'],
                     'home_abrv': game['homeTeam']['teamTricode'],

@@ -12,32 +12,37 @@ ESPN_HEADERS = {
     'Referer': 'https://www.espn.com/nfl/scoreboard'
 }
 
-# Regular season and postseason only. ESPN season.type: 1=preseason, 2=regular, 3=postseason.
+# ESPN season.type: 1=preseason, 2=regular, 3=postseason.
 INCLUDED_SEASON_TYPES = {2, 3}
+PRESEASON_SEASON_TYPE = 1
 
 
-def get_games(date):
+def get_games(date, include_preseason=False):
     """ Loads NFL game data for the provided date from the ESPN scoreboard API.
 
     Args:
         date (date): Date that game data should be pulled for.
+        include_preseason (bool, optional): Include preseason games. Defaults to False.
 
     Returns:
         list: List of dicts of game data.
     """
 
     scoreboard_json = _fetch_scoreboard(params={'dates': date.strftime('%Y%m%d')})
-    return parse_games(scoreboard_json)
+    return parse_games(scoreboard_json, include_preseason)
 
 
-def get_week_games():
+def get_week_games(include_preseason=False):
     """ Loads NFL game data for the current ESPN week (Thu-Mon slate).
+
+    Args:
+        include_preseason (bool, optional): Include preseason games. Defaults to False.
 
     Returns:
         list: List of dicts of game data.
     """
 
-    return parse_games(_fetch_scoreboard())
+    return parse_games(_fetch_scoreboard(), include_preseason)
 
 
 def get_next_game(team):
@@ -91,11 +96,12 @@ def get_next_game(team):
     return None
 
 
-def parse_games(scoreboard_json):
+def parse_games(scoreboard_json, include_preseason=False):
     """ Converts an ESPN scoreboard JSON payload into the game dicts used by game scenes.
 
     Args:
         scoreboard_json (dict): Parsed JSON from the ESPN NFL scoreboard endpoint.
+        include_preseason (bool, optional): Include preseason games. Defaults to False.
 
     Returns:
         list: List of dicts of game data.
@@ -103,9 +109,13 @@ def parse_games(scoreboard_json):
 
     games = []
 
+    included_season_types = set(INCLUDED_SEASON_TYPES)
+    if include_preseason:
+        included_season_types.add(PRESEASON_SEASON_TYPE)
+
     for event in scoreboard_json.get('events', []):
         season_type = event.get('season', {}).get('type')
-        if season_type not in INCLUDED_SEASON_TYPES:
+        if season_type not in included_season_types:
             continue
 
         competition = event['competitions'][0]

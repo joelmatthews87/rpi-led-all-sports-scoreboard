@@ -5,6 +5,7 @@ from utils import image_utils
 from PIL import Image, ImageDraw
 from time import sleep
 import math
+import os
 
 
 class GamesScene(Scene):
@@ -264,7 +265,7 @@ class GamesScene(Scene):
         max_logo_width = self.settings.get('max_logo_width') or self.images['left'].width
 
         # Determine the path of the image to load. Standard path or alt logo.
-        away_logo_path = f'assets/images/{self.LEAGUE}/teams/{game['away_abrv']}.png' if game['away_abrv'] not in self.alt_logos else f'assets/images/{self.LEAGUE}/teams_alt/{game['away_abrv']}_{self.alt_logos[game['away_abrv']]}.png'
+        away_logo_path = self.determine_team_logo_path(game['away_abrv'])
         
         # Load, crop, and resize the away team logo.
         away_logo = Image.open(away_logo_path)
@@ -279,7 +280,7 @@ class GamesScene(Scene):
         self.images['left'].paste(away_logo, away_placement_in_image)
 
         # Determine the path of the image to load. Standard path or alt logo.
-        home_logo_path = f'assets/images/{self.LEAGUE}/teams/{game['home_abrv']}.png' if game['home_abrv'] not in self.alt_logos else f'assets/images/{self.LEAGUE}/teams_alt/{game['home_abrv']}_{self.alt_logos[game['home_abrv']]}.png'
+        home_logo_path = self.determine_team_logo_path(game['home_abrv'])
 
         # Load, crop, and resize the home team logo.
         home_logo = Image.open(home_logo_path)
@@ -343,6 +344,30 @@ class GamesScene(Scene):
             # Dynamically determin placement of home team score based on number of digits. Add to centre image.
             home_score_col_start = 20 - (5 * home_score_digits - 1)
             self.draw['centre'].text((home_score_col_start, home_team_row_start), str(game['home_score']), font=self.FONTS['sm'], fill=colour_home)
+
+
+    def determine_team_logo_path(self, team_abrv):
+        """ Determines the logo file to load for a team, preferring an alt logo when one is set in config.yaml.
+        Falls back to the league logo, as preseason and exhibition games can feature clubs that have no logo in assets.
+
+        Args:
+            team_abrv (str): Abbreviation of the team to load a logo for.
+
+        Returns:
+            str: Path of the logo file to load.
+        """
+
+        if team_abrv in self.alt_logos:
+            alt_path = f'assets/images/{self.LEAGUE}/teams_alt/{team_abrv}_{self.alt_logos[team_abrv]}.png'
+            if os.path.exists(alt_path):
+                return alt_path
+
+        team_path = f'assets/images/{self.LEAGUE}/teams/{team_abrv}.png'
+        if os.path.exists(team_path):
+            return team_path
+
+        print(f'No {self.LEAGUE} logo found for {team_abrv}. Using the league logo instead.')
+        return f'assets/images/{self.LEAGUE}/league/{self.LEAGUE}.png'
 
 
     def add_league_logo_to_image(self):

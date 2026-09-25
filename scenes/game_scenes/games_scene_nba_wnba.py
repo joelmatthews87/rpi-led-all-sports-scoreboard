@@ -33,6 +33,9 @@ class NBAWNBAGamesScene(GamesScene):
         self.settings = data_utils.read_yaml('config.yaml')['scene_settings'][self.LEAGUE.lower()]['games']
         self.alt_logos = data_utils.read_yaml('config.yaml')['alt_logos'][self.LEAGUE.lower()] if data_utils.read_yaml('config.yaml')['alt_logos'][self.LEAGUE.lower()] else {} # Note the teams with an alternative logo per config.yaml.
 
+        # Preseason is excluded unless config.yaml asks for it.
+        include_preseason = self.settings.get('include_preseason', False)
+
         # Determine which days should be displayed. Will generate a list with one or two elements. Two means rollover time and yesterdays games should be displayed.
         dates_to_display = date_utils.determine_dates_to_display_games(self.settings['rollover']['rollover_start_time_local'], self.settings['rollover']['rollover_end_time_local'])
         display_yesterday = True if len(dates_to_display) == 2 else False # Will have to display yesterdays games if dates_to_display has 2 elements.
@@ -43,13 +46,13 @@ class NBAWNBAGamesScene(GamesScene):
             if (hasattr(self, 'data_previous_day') and self.data_previous_day['saved_date'] != dates_to_display[0]) or not hasattr(self, 'data_previous_day'):
                 self.data_previous_day = {
                     'saved_date': dates_to_display[0], # Note the previous date.
-                    'games': data.nba_wnba_data.get_games(dates_to_display[0], self.LEAGUE) # Get data for previous date.
+                    'games': data.nba_wnba_data.get_games(dates_to_display[0], self.LEAGUE, include_preseason) # Get data for previous date.
                 }
         
         # Get current day game data. Save this for future reference.
         self.data = {
             'games_previous_pull': self.data['games'] if hasattr(self, 'data') else None, # If this is the first time this is run, we'd expect self.data to not exist.
-            'games': data.nba_wnba_data.get_games(dates_to_display[-1], self.LEAGUE), # Get data for current day. Current day will always be the last element of dates_to_display.
+            'games': data.nba_wnba_data.get_games(dates_to_display[-1], self.LEAGUE, include_preseason), # Get data for current day. Current day will always be the last element of dates_to_display.
         }
 
         # If there are games to display from yesterday (and setting is enabled), build and display splash image (if enabled), then images for those games.

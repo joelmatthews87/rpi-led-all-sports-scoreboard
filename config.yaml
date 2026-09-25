@@ -70,12 +70,13 @@ scene_settings:
         display_splash: True
         splash_display_duration: 2
       game_display_duration: 3.5
+      include_preseason: True # Show preseason games. Regular season and playoffs are always shown.
       score_alerting:
         score_coloured: true
         score_fade_animation: true
       rollover:
         rollover_start_time_local: '07:00'
-        show_completed_games_until_rollover_end_time: True
+        show_completed_games_until_rollover_end_time: False
         rollover_end_time_local: '12:00'
 
     fav_team_next_game: # nhl_fav_team_next_game scene.
@@ -111,7 +112,7 @@ scene_settings:
         score_fade_animation: true
       rollover:
         rollover_start_time_local: '07:00'
-        show_completed_games_until_rollover_end_time: True
+        show_completed_games_until_rollover_end_time: False
         rollover_end_time_local: '12:00'
 
     fav_team_next_game: # pwhl_fav_team_next_game scene.
@@ -140,12 +141,13 @@ scene_settings:
         display_splash: True
         splash_display_duration: 2
       game_display_duration: 3.5
+      include_preseason: True # Show preseason games. Regular season and playoffs are always shown.
       score_alerting:
         score_coloured: false
         score_fade_animation: false
       rollover:
         rollover_start_time_local: '07:00'
-        show_completed_games_until_rollover_end_time: True
+        show_completed_games_until_rollover_end_time: False
         rollover_end_time_local: '12:00'
 
     fav_team_next_game: # nba_fav_team_next_game scene.
@@ -174,12 +176,13 @@ scene_settings:
         display_splash: True
         splash_display_duration: 2
       game_display_duration: 3.5
+      include_preseason: True # Show preseason games. Regular season and playoffs are always shown.
       score_alerting:
         score_coloured: false
         score_fade_animation: false
       rollover:
         rollover_start_time_local: '07:00'
-        show_completed_games_until_rollover_end_time: True
+        show_completed_games_until_rollover_end_time: False
         rollover_end_time_local: '12:00'
 
     fav_team_next_game: # wnba_fav_team_next_game scene.
@@ -214,7 +217,7 @@ scene_settings:
         score_fade_animation: True
       rollover:
         rollover_start_time_local: '07:00'
-        show_completed_games_until_rollover_end_time: True
+        show_completed_games_until_rollover_end_time: False
         rollover_end_time_local: '09:00'
 
     fav_team_next_game: # mlb_fav_team_next_game scene.
@@ -247,12 +250,13 @@ scene_settings:
       game_display_duration: 3.5
       show_full_week: True # Show the current ESPN week (Thu-Mon) instead of only today's games.
       max_logo_width: 30 # Pull back the logo zoom so wide NFL wordmarks (NYJ, NE, SEA) aren't cut in half. Max 40.
+      include_preseason: True # Show preseason games. Regular season and playoffs are always shown.
       score_alerting:
         score_coloured: true
         score_fade_animation: true
       rollover:
         rollover_start_time_local: '07:00'
-        show_completed_games_until_rollover_end_time: True
+        show_completed_games_until_rollover_end_time: False
         rollover_end_time_local: '12:00'
 
     fav_team_next_game: # nfl_fav_team_next_game scene.

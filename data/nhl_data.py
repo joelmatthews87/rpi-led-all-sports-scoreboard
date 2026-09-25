@@ -3,11 +3,12 @@ from datetime import datetime as dt
 from datetime import timezone as tz
 
 
-def get_games(date):
+def get_games(date, include_preseason=False):
     """ Loads NHL game data for the provided date.
 
     Args:
         date (date): Date that game data should be pulled for.
+        include_preseason (bool, optional): Include preseason games. Defaults to False.
 
     Returns:
         list: List of dicts of game data.
@@ -15,6 +16,9 @@ def get_games(date):
     
     # Create an empty list to hold the game dicts.
     games = []
+
+    # Game types to keep. Preseason is 1, so it's only added when requested.
+    included_game_types = [1, 2, 3] if include_preseason else [2, 3]
 
     # Call the NHL game API for the date specified and store the JSON results.
     url = 'https://api-web.nhle.com/v1/score/'
@@ -24,9 +28,9 @@ def get_games(date):
     # For each game, build a dict recording current game details.
     if games_json: # If games today.
         for game in games_json:
-            # Append the dict to the games list. We only want to get regular season (gameType = 2) and playoff (3) games.
+            # Append the dict to the games list. We only want to get regular season (gameType = 2) and playoff (3) games, plus preseason (1) if enabled.
             # Note that 19 and 20 may need to be included. These were used for the 4 Nations Face-Off round robin & finals and will be evaluated again in the future.
-            if game['gameType'] in [2, 3]:
+            if game['gameType'] in included_game_types:
                 games.append({
                     'game_id': game['id'],
                     'home_abrv': game['homeTeam']['abbrev'],

@@ -29,12 +29,15 @@ class NFLGamesScene(GamesScene):
         self.settings = data_utils.read_yaml('config.yaml')['scene_settings'][self.LEAGUE.lower()]['games']
         self.alt_logos = data_utils.read_yaml('config.yaml')['alt_logos'][self.LEAGUE.lower()] if data_utils.read_yaml('config.yaml')['alt_logos'][self.LEAGUE.lower()] else {} # Note the teams with an alternative logo per config.yaml.
 
+        # Preseason is excluded unless config.yaml asks for it.
+        include_preseason = self.settings.get('include_preseason', False)
+
         # NFL slates run Thursday through Monday. Optionally show the current ESPN week
         # instead of only the local calendar day's games (which is empty most weekdays).
         if self.settings.get('show_full_week', True):
             self.data = {
                 'games_previous_pull': self.data['games'] if hasattr(self, 'data') else None,
-                'games': data.nfl_data.get_week_games(),
+                'games': data.nfl_data.get_week_games(include_preseason),
             }
             week_date = dt.today().astimezone().date()
             self._mark_score_changes()
@@ -53,13 +56,13 @@ class NFLGamesScene(GamesScene):
             if (hasattr(self, 'data_previous_day') and self.data_previous_day['saved_date'] != dates_to_display[0]) or not hasattr(self, 'data_previous_day'):
                 self.data_previous_day = {
                     'saved_date': dates_to_display[0], # Note the previous date.
-                    'games': data.nfl_data.get_games(dates_to_display[0]) # Get data for previous date.
+                    'games': data.nfl_data.get_games(dates_to_display[0], include_preseason) # Get data for previous date.
                 }
 
         # Get current day game data. Save this for future reference.
         self.data = {
             'games_previous_pull': self.data['games'] if hasattr(self, 'data') else None, # If this is the first time this is run, we'd expect self.data to not exist.
-            'games': data.nfl_data.get_games(dates_to_display[-1]), # Get data for current day. Current day will always be the last element of dates_to_display.
+            'games': data.nfl_data.get_games(dates_to_display[-1], include_preseason), # Get data for current day. Current day will always be the last element of dates_to_display.
         }
 
         # If there are games to display from yesterday (and setting is enabled), build and display splash image (if enabled), then images for those games.
