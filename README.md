@@ -127,10 +127,12 @@ Any installation will need to start with these steps:
 
 1. Update config.yaml with your preferred scoreboard behaviour. Don't worry, you can freely edit these settings at any time. Recommend setting a favourite team at the minimum. See the [Configuration](#config) section for more details.
 
-1. Start scoreboard. It will start running shortly after entering the below command. The scoreboard will automatically restart after a Raspberry Pi reboot.
+1. Start scoreboard. This **builds a local Docker image from this repository** (it does not pull gidger's published image). The first build takes several minutes. The scoreboard will automatically restart after a Raspberry Pi reboot.
     ```bash
-    docker compose up -d
+    docker compose up -d --build
     ```
+
+    If you already have gidger's original scoreboard running in another directory, leave that folder alone. Clone this project into a **new** directory, stop the original container first (`cd` to that original folder and `docker compose down`), then start this one. Both containers cannot drive the same LED matrix at once.
 
 1. Done!
 

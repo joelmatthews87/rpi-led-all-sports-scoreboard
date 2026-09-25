@@ -1,11 +1,7 @@
 ---
 services:
   scoreboard:
-    # Build from this repo rather than pulling a prebuilt image, so local changes
-    # (e.g. the NFL scenes) actually end up in the running container.
-    build:
-      context: .
-      dockerfile: Dockerfile
+    build: .
     image: rpi-led-all-sports-scoreboard:local
     container_name: rpi-led-all-sports-scoreboard
     privileged: true
