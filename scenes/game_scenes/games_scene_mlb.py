@@ -115,8 +115,8 @@ class MLBGamesScene(GamesScene):
                     else:
                         self.build_game_not_started_image(game)
 
-                # If the game is postponed, build the game postponed image. Need to check for these first as the API also says these games are 'Final'.
-                elif game['detailed_status'] in ['Postponed']:
+                # If the game is postponed or cancelled, build the postponed image. Need to check for these first as the API also says these games are 'Final', and a cancelled game has no inning.
+                elif game['detailed_status'] in ['Postponed', 'Cancelled', 'Canceled']:
                     self.build_game_postponed_image(game)
 
                 # If the game is over, build the final score image.
@@ -182,6 +182,10 @@ class MLBGamesScene(GamesScene):
             game (dict): Dictionary with all details of a specific game.
         """
 
+        # A game can be live in name only, with no inning yet. Nothing sensible to draw.
+        if not game['inning_num']:
+            return
+
         # Determine the offset for the inning details based on the inning number. If extra innings, will need to adjust to fit the extra digit.
         col_offset = 6 if game['inning_num'] <= 9 else 3
 
@@ -217,7 +221,8 @@ class MLBGamesScene(GamesScene):
         """
 
         # If the game ended in extra innings, add the final inning number to the image.
-        if game['inning_num'] > 9:
+        # A cancelled game can be marked Final with no inning at all.
+        if game['inning_num'] and game['inning_num'] > 9:
             # We'll assume no games go longer than 99 innings... so only one layout needed.
             self.draw['centre'].text((4, 8), str(game['inning_num']), font=self.FONTS['med'], fill=self.COLOURS['white'])
 
