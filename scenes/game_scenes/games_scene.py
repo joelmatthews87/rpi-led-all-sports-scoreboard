@@ -262,7 +262,9 @@ class GamesScene(Scene):
         # Only 21 of the 40 helper image columns are visible, so wider logos bleed off the outer
         # edge of the matrix. That's intended, but wordmark style logos can lose too much of
         # themselves. max_logo_width in config.yaml lets a league pull that zoom back.
+        # logo_inner_inset shifts both logos outward so a double-digit score has a gap.
         max_logo_width = self.settings.get('max_logo_width') or self.images['left'].width
+        inner_inset = self.settings.get('logo_inner_inset') or 0
 
         # Determine the path of the image to load. Standard path or alt logo.
         away_logo_path = self.determine_team_logo_path(game['away_abrv'])
@@ -274,7 +276,7 @@ class GamesScene(Scene):
 
         # Determine placement and add logo to the left image.
         away_placement_in_image = (
-            self.images['left'].width - away_logo.width if away_logo.width > 21 else 19 + math.ceil((21 - away_logo.width) / 2), # Right align logo within the left image if logo is wider than image, otherwise centre.
+            (self.images['left'].width - away_logo.width if away_logo.width > 21 else 19 + math.ceil((21 - away_logo.width) / 2)) - inner_inset, # Right align logo within the left image if logo is wider than image, otherwise centre.
             math.floor((self.images['left'].height - away_logo.height) / 2) # Middle align hight within left image (when logo is shorter than max image height). 
         )
         self.images['left'].paste(away_logo, away_placement_in_image)
@@ -289,10 +291,15 @@ class GamesScene(Scene):
 
         # Determine placement and add logo to the right image.
         home_placement_in_image = (
-            0 if home_logo.width > 21 else math.floor((21 - home_logo.width) / 2), # Left align logo within the right image if logo is wider than image, otherwise centre.
+            (0 if home_logo.width > 21 else math.floor((21 - home_logo.width) / 2)) + inner_inset, # Left align logo within the right image if logo is wider than image, otherwise centre.
             math.floor((self.images['right'].height - home_logo.height) / 2) # Middle align hight within right image (when logo is shorter than max image height). 
         )
         self.images['right'].paste(home_logo, home_placement_in_image)
+
+        self.logo_bounds = {
+            'away': (*away_placement_in_image, away_logo.width, away_logo.height),
+            'home': (*home_placement_in_image, home_logo.width, home_logo.height),
+        }
 
 
     def add_score_to_image(self, game, overriding_team=None, colour_override=None):

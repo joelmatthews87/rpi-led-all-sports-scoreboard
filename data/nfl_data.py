@@ -135,6 +135,15 @@ def parse_games(scoreboard_json, include_preseason=False):
         start_datetime_utc = dt.strptime(event['date'], '%Y-%m-%dT%H:%MZ').replace(tzinfo=tz.utc)
         period_num = status.get('period') or 0
         situation = competition.get('situation') or {}
+        possession_id = situation.get('possession')
+        possession = None
+        if possession_id:
+            home_id = str((home.get('team') or {}).get('id'))
+            away_id = str((away.get('team') or {}).get('id'))
+            if str(possession_id) == home_id:
+                possession = 'home'
+            elif str(possession_id) == away_id:
+                possession = 'away'
 
         games.append({
             'game_id': event['id'],
@@ -153,9 +162,10 @@ def parse_games(scoreboard_json, include_preseason=False):
             'is_halftime': is_halftime,
             'is_postponed': is_postponed,
             'start_time_tbd': not competition.get('timeValid', True),
-            # Stored for a later down-and-distance view; unused in V1 display.
+            # down/distance stay available, but the live screen shows possession instead.
             'down': situation.get('down'),
             'distance': situation.get('distance'),
+            'possession': possession,
             'home_team_scored': False,
             'away_team_scored': False,
             'scoring_team': None

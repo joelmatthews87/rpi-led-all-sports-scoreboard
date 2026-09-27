@@ -249,7 +249,8 @@ scene_settings:
         splash_display_duration: 2
       game_display_duration: 3.5
       show_full_week: True # Show the current ESPN week (Thu-Mon) instead of only today's games.
-      max_logo_width: 30 # Pull back the logo zoom so wide NFL wordmarks (NYJ, NE, SEA) aren't cut in half. Max 40.
+      max_logo_width: 27 # Pull back the logo zoom so wide NFL wordmarks (NYJ, NE, SEA) aren't cut in half. Max 40.
+      logo_inner_inset: 2 # Shift both logos outward so double-digit scores have a gap.
       include_preseason: True # Show preseason games. Regular season and playoffs are always shown.
       score_alerting:
         score_coloured: true

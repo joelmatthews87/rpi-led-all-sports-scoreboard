@@ -200,6 +200,48 @@ class NFLGamesScene(GamesScene):
         self.add_time_to_image(game)
 
 
+    def build_game_in_progress_image(self, game):
+        """ Builds the live game image, then marks which team has the ball.
+
+        Args:
+            game (dict): Dictionary with all details of a specific game.
+        """
+
+        super().build_game_in_progress_image(game)
+        self.add_possession_marker(game)
+
+
+    def add_possession_marker(self, game):
+        """ Draws a small football on the inner edge of the team that has possession.
+        Skipped when ESPN has no possession, which happens at halftime, on kickoffs, and during reviews.
+
+        Args:
+            game (dict): Dictionary with all details of a specific game.
+        """
+
+        side = game.get('possession')
+        if side not in ('away', 'home') or not hasattr(self, 'logo_bounds'):
+            return
+
+        logo_x, logo_y, logo_w, logo_h = self.logo_bounds[side]
+        ball_w, ball_h = 7, 6
+        ball_x = logo_x + logo_w - ball_w if side == 'away' else logo_x
+        ball_y = logo_y + max(0, (logo_h - ball_h) // 2)
+        image_key = 'left' if side == 'away' else 'right'
+
+        # Black outline, amber body, white lace. Outline keeps it visible on bright logos.
+        outline = [(2, 0), (3, 0), (4, 0), (1, 1), (5, 1), (0, 2), (6, 2), (0, 3), (6, 3), (1, 4), (5, 4), (2, 5), (3, 5), (4, 5)]
+        body = [(2, 1), (3, 1), (4, 1), (1, 2), (2, 2), (4, 2), (5, 2), (1, 3), (2, 3), (4, 3), (5, 3), (2, 4), (3, 4), (4, 4)]
+        lace = [(3, 2), (3, 3)]
+        draw = self.draw[image_key]
+        for px, py in outline:
+            draw.point((ball_x + px, ball_y + py), fill=self.COLOURS['black'])
+        for px, py in body:
+            draw.point((ball_x + px, ball_y + py), fill=(255, 140, 0))
+        for px, py in lace:
+            draw.point((ball_x + px, ball_y + py), fill=self.COLOURS['white'])
+
+
     def add_playing_period_to_image(self, game):
         """ Adds current playing period to the centre image.
         This exists within the specific league class due to huge differences in playing periods between sports (periods, quarters, innings, etc.).
