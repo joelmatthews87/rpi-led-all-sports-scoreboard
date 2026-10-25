@@ -62,8 +62,12 @@ def get_games(date):
     url = base_url + '?' + '&'.join([f'{key}={",".join(value) if isinstance(value, list) else value}' for key, value in url_params.items()])
     
     # Call the MLB game API for the date specified and store the JSON results.
+    # dates is an empty list on days with no games, including after the season ends.
     games_response = session.get(url=url)
-    games_json = games_response.json()['dates'][0]['games']
+    dates = games_response.json().get('dates') or []
+    if not dates:
+        return games
+    games_json = dates[0]['games']
 
     # For each game, build a dict recording current game details.
     if games_json: # If games today.
